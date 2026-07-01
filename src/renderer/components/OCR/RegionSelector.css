@@ -1,0 +1,80 @@
+.region-selector-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  cursor: crosshair;
+  overflow: hidden;
+  /* Lớp nền tối giúp báo hiệu đang chụp màn hình và BẮT BUỘC để Windows nhận diện click chuột */
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.overlay-dim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.selection-box {
+  position: absolute;
+  border: 2px solid #00ff00;
+  background-color: rgba(0, 255, 0, 0.1);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.hidden-video {
+  display: none;
+}
+
+.hint-text {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: sans-serif;
+  z-index: 30;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  user-select: none;
+}
+
+.processing-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 40;
+  backdrop-filter: blur(8px);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

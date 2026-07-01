@@ -1,0 +1,221 @@
+/* ============================================================
+   HotLingo — Translation Overlay Styles
+   Compact, dark, floating card near cursor
+   ============================================================ */
+
+/* ─── Overlay Card ─── */
+.overlay-card {
+  margin: 4px;
+  background: rgba(15, 17, 24, 0.95);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 1px rgba(102, 126, 234, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 90vh;
+  max-height: 90vh;
+}
+
+/* ─── Header ─── */
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+}
+
+.overlay-provider {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.overlay-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.overlay-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  transition: all var(--transition-fast);
+  opacity: 0.7;
+}
+
+.overlay-btn:hover {
+  opacity: 1;
+  background: var(--color-bg-hover);
+}
+
+.overlay-btn--active {
+  opacity: 1;
+  background: var(--color-accent-light);
+}
+
+.overlay-btn--close:hover {
+  background: rgba(245, 87, 108, 0.2);
+  color: var(--color-error);
+}
+
+/* ─── Source Text ─── */
+.overlay-source {
+  padding: 10px 12px 6px;
+}
+
+.overlay-source__input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  padding: 0;
+  margin: 0;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.overlay-source__input:focus {
+  color: var(--color-text-primary);
+}
+
+/* ─── Divider ─── */
+.overlay-divider {
+  margin: 0 12px;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      var(--color-glass-border) 20%,
+      var(--color-accent) 50%,
+      var(--color-glass-border) 80%,
+      transparent 100%);
+  opacity: 0.5;
+}
+
+/* ─── Result ─── */
+.overlay-result {
+  padding: 8px 12px 10px;
+  min-height: 36px;
+  overflow-y: auto;
+}
+
+.overlay-result__text {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* Typing cursor animation */
+.overlay-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--color-accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.8s step-start infinite;
+}
+
+/* ─── Loading ─── */
+.overlay-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.overlay-loading__dots {
+  display: flex;
+  gap: 4px;
+}
+
+.overlay-loading__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.overlay-loading__dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.overlay-loading__dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.overlay-loading__text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ─── Footer ─── */
+.overlay-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 12px 8px;
+}
+
+.overlay-copy {
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-glass-border);
+  transition: all var(--transition-fast);
+}
+
+.overlay-copy:hover {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.overlay-copy--success {
+  background: rgba(67, 233, 123, 0.1);
+  color: var(--color-success);
+  border-color: rgba(67, 233, 123, 0.3);
+}
+
+/* ─── Context Input ─── */
+.overlay-context-input {
+  padding: 4px 12px 8px;
+}
+
+.overlay-context-field {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.overlay-context-field:focus {
+  border-color: var(--color-accent);
+  background: rgba(0, 0, 0, 0.4);
+}
