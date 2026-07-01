@@ -37,7 +37,7 @@ export function createOverlayWindow(): BrowserWindow {
 
   // Load overlay UI
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    overlay.loadURL(process.env['ELECTRON_RENDERER_URL'] + '#/overlay')
+    overlay.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/#/overlay`)
   } else {
     overlay.loadFile(join(__dirname, '../renderer/index.html'), {
       hash: '/overlay'

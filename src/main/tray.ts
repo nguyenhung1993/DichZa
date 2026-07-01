@@ -13,7 +13,6 @@ let tray: Tray | null = null
  * Tạo System Tray với icon và context menu
  */
 export function createTray(mainWindow: BrowserWindow): void {
-  // Load tray icon
   const iconPath = is.dev
     ? join(__dirname, '../../resources/icon.png')
     : join(process.resourcesPath, 'resources/icon.png')

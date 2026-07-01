@@ -6,8 +6,7 @@
     "output": "dist"
   },
   "files": [
-    "out/**/*",
-    "!out/renderer/**/*"
+    "out/**/*"
   ],
   "extraResources": [
     "resources/**"

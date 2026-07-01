@@ -45,7 +45,7 @@ export function startScreenshotMode(): void {
     if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
       win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}${hash}`)
     } else {
-      win.loadFile(join(__dirname, '../renderer/index.html'), { hash: `ocr?displayId=${display.id}` })
+      win.loadFile(join(__dirname, '../renderer/index.html'), { hash: `/ocr?displayId=${display.id}` })
     }
 
     screenshotWindows.push(win)

@@ -28,9 +28,10 @@ import { OVERLAY_OFFSET, OVERLAY_SIZE } from '../shared/constants'
 import { screen } from 'electron'
 
 /** Main app window (tray popup) */
-let mainWindow: BrowserWindow | null = null
+let mainWindow: BrowserWindow
 /** Translation overlay window */
 let overlayWindow: BrowserWindow | null = null
+let regionSelectorWindow: BrowserWindow | null = null
 
 function createMainWindow(): BrowserWindow {
   mainWindow = new BrowserWindow({
@@ -43,7 +44,7 @@ function createMainWindow(): BrowserWindow {
     transparent: false, // Fix invisibility issue with GPU disabled
     backgroundColor: '#1E1E2E', // Solid background for settings panel
     alwaysOnTop: true,
-    icon: join(__dirname, '../../resources/icon.png'),
+    icon: is.dev ? join(__dirname, '../../resources/icon.png') : join(process.resourcesPath, 'resources/icon.png'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -116,9 +117,11 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   stopClipboardMonitor()
-  unregisterHotkeys()
+  if (app.isReady()) {
+    unregisterHotkeys()
+    globalShortcut.unregisterAll()
+  }
   destroyTray()
-  globalShortcut.unregisterAll()
 })
 
 // Ngăn chạy nhiều instance

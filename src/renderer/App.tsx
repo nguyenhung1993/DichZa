@@ -16,9 +16,9 @@ function App(): JSX.Element {
 
   useEffect(() => {
     const hash = window.location.hash
-    if (hash.startsWith('#/overlay')) {
+    if (hash.includes('overlay')) {
       setView('overlay')
-    } else if (hash.startsWith('#/ocr')) {
+    } else if (hash.includes('ocr')) {
       setView('ocr')
     } else {
       setView('main')
