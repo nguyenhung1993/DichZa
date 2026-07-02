@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Global Hotkey Handler
+// DichZa — Global Hotkey Handler
 // Đăng ký hotkeys system-wide, capture selected text
 // ============================================================
 
@@ -39,7 +39,7 @@ export function registerHotkeys(
           const fs = require('fs')
           
           if (process.platform === 'win32') {
-            const vbsPath = path.join(os.tmpdir(), 'hotlingo_copy.vbs')
+            const vbsPath = path.join(os.tmpdir(), 'dichza_copy.vbs')
             // Chờ 50ms (rất nhanh vì F4 không bị kẹt phím Alt/Ctrl)
             const vbsCode = [
               'Set WshShell = WScript.CreateObject("WScript.Shell")',

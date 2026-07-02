@@ -1,12 +1,12 @@
 // ============================================================
-// HotLingo — Preload Script
+// DichZa — Preload Script
 // contextBridge: expose API an toàn từ Main → Renderer
 // ============================================================
 
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS, AppSettings, TranslationResult } from '../shared/types'
 
-/** API exposed to renderer via window.hotlingo */
+/** API exposed to renderer via window.dichza */
 const api = {
   // ─────────────────────────────────────────────
   // Settings
@@ -41,6 +41,9 @@ const api = {
   hideOverlay: (): void =>
     ipcRenderer.send(IPC_CHANNELS.HIDE_OVERLAY),
 
+  setPinned: (pinned: boolean): void =>
+    ipcRenderer.send(IPC_CHANNELS.SET_PINNED, pinned),
+
   resizeOverlay: (width: number, height: number): void =>
     ipcRenderer.send(IPC_CHANNELS.OVERLAY_RESIZE, { width, height }),
 
@@ -52,6 +55,9 @@ const api = {
 
   quitApp: (): void =>
     ipcRenderer.send(IPC_CHANNELS.QUIT_APP),
+
+  installUpdate: (): void =>
+    ipcRenderer.send(IPC_CHANNELS.INSTALL_UPDATE),
 
   // ─────────────────────────────────────────────
   // OCR
@@ -110,11 +116,18 @@ const api = {
     const handler = () => callback()
     ipcRenderer.on(IPC_CHANNELS.REQUEST_OCR, handler)
     return () => ipcRenderer.removeListener(IPC_CHANNELS.REQUEST_OCR, handler)
+  },
+
+  /** Lắng nghe khi tải xong bản cập nhật */
+  onUpdateDownloaded: (callback: (version: string) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, version: string) => callback(version)
+    ipcRenderer.on(IPC_CHANNELS.UPDATE_DOWNLOADED, handler)
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_DOWNLOADED, handler)
   }
 }
 
 // Expose API to renderer
-contextBridge.exposeInMainWorld('hotlingo', api)
+contextBridge.exposeInMainWorld('dichza', api)
 
 // Type declaration for renderer
-export type HotLingoAPI = typeof api
+export type DichZaAPI = typeof api

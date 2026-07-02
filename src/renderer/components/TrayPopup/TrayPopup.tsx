@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Tray Popup Component
+// DichZa — Tray Popup Component
 // Main UI khi click tray icon
 // Tabs: Translate | History | Settings
 // ============================================================
@@ -33,8 +33,8 @@ function TrayPopup(): JSX.Element {
 
   // Lắng nghe navigation events từ tray menu
   useEffect(() => {
-    if (window.hotlingo) {
-      const cleanup = window.hotlingo.onNavigate((page: string) => {
+    if (window.dichza) {
+      const cleanup = window.dichza.onNavigate((page: string) => {
         if (page === 'settings' || page === 'history' || page === 'translate') {
           setActiveTab(page as Tab)
         }
@@ -45,8 +45,8 @@ function TrayPopup(): JSX.Element {
 
   // Load history khi mở tab
   useEffect(() => {
-    if (activeTab === 'history' && window.hotlingo) {
-      window.hotlingo.getHistory().then((items) => {
+    if (activeTab === 'history' && window.dichza) {
+      window.dichza.getHistory().then((items) => {
         setHistory(items || [])
       })
     }
@@ -74,8 +74,8 @@ function TrayPopup(): JSX.Element {
 
   // Copy translation
   const handleCopy = useCallback(async (text: string) => {
-    if (window.hotlingo) {
-      await window.hotlingo.copyToClipboard(text)
+    if (window.dichza) {
+      await window.dichza.copyToClipboard(text)
     } else {
       navigator.clipboard.writeText(text)
     }
@@ -307,8 +307,8 @@ function TrayPopup(): JSX.Element {
               <button
                 className="history-clear"
                 onClick={async () => {
-                  if (window.hotlingo) {
-                    await window.hotlingo.clearHistory()
+                  if (window.dichza) {
+                    await window.dichza.clearHistory()
                     setHistory([])
                   }
                 }}

@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Main Process Entry Point
+// DichZa — Main Process Entry Point
 // Quản lý vòng đời app, tạo windows, đăng ký IPC handlers
 // ============================================================
 
@@ -23,6 +23,7 @@ import { registerIpcHandlers } from './ipc-handlers'
 import { initStore, getSettings } from './store'
 import { createOverlayWindow } from './overlay'
 import { startClipboardMonitor, stopClipboardMonitor } from './clipboard'
+import { initAutoUpdater } from './auto-updater'
 import { IPC_CHANNELS } from '../shared/types'
 import { OVERLAY_OFFSET, OVERLAY_SIZE } from '../shared/constants'
 import { screen } from 'electron'
@@ -91,6 +92,16 @@ app.whenReady().then(() => {
   // Init persistent store
   initStore()
 
+  // Apply auto-start setting
+  const settings = getSettings()
+  if (app.isPackaged) {
+    app.setLoginItemSettings({
+      openAtLogin: settings.autoStartWithWindows,
+      path: app.getPath('exe'),
+      args: ['--hidden']
+    })
+  }
+
   // Tạo windows
   const win = createMainWindow()
   overlayWindow = createOverlayWindow()
@@ -103,6 +114,11 @@ app.whenReady().then(() => {
 
   // Đăng ký IPC handlers
   registerIpcHandlers(win, overlayWindow)
+
+  // Khởi tạo Auto-Updater
+  if (app.isPackaged) {
+    initAutoUpdater(win)
+  }
 
   // Dev tools shortcut
   app.on('browser-window-created', (_, window) => {

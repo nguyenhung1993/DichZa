@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Google Translate Service (Free)
+// DichZa — Google Translate Service (Free)
 // Dùng google-translate-api-x (unofficial, free, unlimited)
 // ============================================================
 
@@ -12,7 +12,7 @@ export async function translateWithGoogle(
   to: string
 ): Promise<{ text: string; detectedLang?: string }> {
   try {
-    return await window.hotlingo.translateGoogle(text, from, to)
+    return await window.dichza.translateGoogle(text, from, to)
   } catch (error: any) {
     console.error('[DichZa] Google Translate error:', error.message)
 

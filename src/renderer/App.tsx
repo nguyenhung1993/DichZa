@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — App Root Component
+// DichZa — App Root Component
 // Routing giữa TrayPopup (main) và Overlay
 // ============================================================
 

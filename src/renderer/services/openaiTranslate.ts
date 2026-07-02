@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — OpenAI Translation Service (Paid, Streaming)
+// DichZa — OpenAI Translation Service (Paid, Streaming)
 // Dịch bằng OpenAI với Smart Context, SSE streaming
 // ============================================================
 

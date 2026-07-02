@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — IPC Handlers
+// DichZa — IPC Handlers
 // Xử lý communication giữa Main ↔ Renderer processes
 // ============================================================
 
@@ -7,9 +7,10 @@ import { ipcMain, BrowserWindow } from 'electron'
 import { IPC_CHANNELS } from '../shared/types'
 import { getSettings, setSettings, getHistory, addHistory, clearHistory } from './store'
 import { copyToClipboard } from './clipboard'
-import { hideOverlay } from './overlay'
+import { hideOverlay, setOverlayPinned } from './overlay'
 import { reregisterHotkeys } from './hotkey'
 import { closeScreenshotMode } from './screenshot'
+import { installUpdate } from './auto-updater'
 import { OVERLAY_OFFSET, OVERLAY_SIZE } from '../shared/constants'
 
 /**
@@ -19,6 +20,10 @@ export function registerIpcHandlers(
   mainWindow: BrowserWindow,
   overlayWindow: BrowserWindow | null
 ): void {
+  ipcMain.on(IPC_CHANNELS.SET_PINNED, (_event, pinned: boolean) => {
+    setOverlayPinned(pinned)
+  })
+
   // ─────────────────────────────────────────────
   // Settings
   // ─────────────────────────────────────────────
@@ -29,6 +34,15 @@ export function registerIpcHandlers(
 
   ipcMain.handle(IPC_CHANNELS.SET_SETTINGS, (_event, settings) => {
     const updated = setSettings(settings)
+    const { app } = require('electron')
+
+    if (app.isPackaged && typeof settings.autoStartWithWindows !== 'undefined') {
+      app.setLoginItemSettings({
+        openAtLogin: updated.autoStartWithWindows,
+        path: app.getPath('exe'),
+        args: ['--hidden']
+      })
+    }
 
     // Re-register hotkeys nếu đổi phím tắt
     if (settings.translateHotkey || settings.ocrHotkey) {
@@ -132,6 +146,10 @@ export function registerIpcHandlers(
   ipcMain.on(IPC_CHANNELS.QUIT_APP, () => {
     const { app } = require('electron')
     app.quit()
+  })
+
+  ipcMain.on(IPC_CHANNELS.INSTALL_UPDATE, () => {
+    installUpdate()
   })
 
   // ─────────────────────────────────────────────

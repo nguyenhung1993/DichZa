@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Persistent Store (electron-store)
+// DichZa — Persistent Store (electron-store)
 // Lưu settings, history, context vào JSON file
 // ============================================================
 
@@ -19,7 +19,7 @@ let store: Store<StoreSchema>
  */
 export function initStore(): void {
   store = new Store<StoreSchema>({
-    name: 'hotlingo-config',
+    name: 'dichza-config',
     defaults: {
       settings: DEFAULT_SETTINGS,
       history: []

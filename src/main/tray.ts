@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — System Tray
+// DichZa — System Tray
 // Tạo tray icon, context menu, toggle popup window
 // ============================================================
 
@@ -58,11 +58,11 @@ export function createTray(mainWindow: BrowserWindow): void {
     },
     { type: 'separator' },
     {
-      label: '🔑 Phím tắt: Ctrl+Alt+T (Dịch)',
+      label: '🔑 Phím tắt: F4 (Dịch)',
       enabled: false
     },
     {
-      label: '📸 Phím tắt: Ctrl+Alt+S (OCR)',
+      label: '📸 Phím tắt: F3 (OCR)',
       enabled: false
     },
     { type: 'separator' },

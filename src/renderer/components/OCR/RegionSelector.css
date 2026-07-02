@@ -78,3 +78,37 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.in-place-translation {
+  position: absolute;
+  box-sizing: border-box;
+  background-color: rgba(20, 20, 25, 0.95);
+  color: #fff;
+  border-radius: 4px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  pointer-events: auto;
+  cursor: text;
+  user-select: text;
+  animation: fadeIn 0.2s ease-out;
+  overflow: hidden;
+}
+
+.translation-text-inner {
+  padding: 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

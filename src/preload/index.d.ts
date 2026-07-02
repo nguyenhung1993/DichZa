@@ -1,12 +1,12 @@
 // ============================================================
-// HotLingo — Preload Type Declaration
-// Cho renderer biết window.hotlingo có những API gì
+// DichZa — Preload Type Declaration
+// Cho renderer biết window.dichza có những API gì
 // ============================================================
 
-import type { HotLingoAPI } from './index'
+import type { DichZaAPI } from './index'
 
 declare global {
   interface Window {
-    hotlingo: HotLingoAPI
+    dichza: DichZaAPI
   }
 }

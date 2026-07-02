@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Clipboard Manager
+// DichZa — Clipboard Manager
 // Monitor clipboard for auto-translation feature
 // ============================================================
 

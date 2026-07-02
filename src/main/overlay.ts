@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Translation Overlay Window
+// DichZa — Translation Overlay Window
 // Cửa sổ nhỏ hiện bản dịch cạnh cursor
 // ============================================================
 
@@ -7,6 +7,12 @@ import { BrowserWindow } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { OVERLAY_SIZE } from '../shared/constants'
+
+let isOverlayPinned = false
+
+export function setOverlayPinned(pinned: boolean): void {
+  isOverlayPinned = pinned
+}
 
 /**
  * Tạo overlay window (transparent, frameless, always-on-top)
@@ -44,14 +50,14 @@ export function createOverlayWindow(): BrowserWindow {
     })
   }
 
-  // Tạm thời tắt tính năng auto-hide để fix lỗi app không hiển thị
-  // overlay.on('blur', () => {
-  //   setTimeout(() => {
-  //     if (overlay && !overlay.isDestroyed() && !overlay.isFocused()) {
-  //       overlay.hide()
-  //     }
-  //   }, 200)
-  // })
+  // Auto-hide khi mất focus (trừ khi đang ghim)
+  overlay.on('blur', () => {
+    setTimeout(() => {
+      if (overlay && !overlay.isDestroyed() && !overlay.isFocused() && !isOverlayPinned) {
+        overlay.hide()
+      }
+    }, 200)
+  })
 
   return overlay
 }

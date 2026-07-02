@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Translation Zustand Store
+// DichZa — Translation Zustand Store
 // Global state cho translation flow
 // ============================================================
 
@@ -73,8 +73,8 @@ export const useTranslationStore = create<TranslationState>((set, get) => ({
       })
 
       // Lưu vào history
-      if (window.hotlingo) {
-        await window.hotlingo.addHistory({
+      if (window.dichza) {
+        await window.dichza.addHistory({
           id: crypto.randomUUID(),
           sourceText: inputText,
           translatedText: result.translatedText,
@@ -122,8 +122,8 @@ export const useTranslationStore = create<TranslationState>((set, get) => ({
       set({ isTranslating: false })
 
       // Lưu vào history
-      if (window.hotlingo) {
-        await window.hotlingo.addHistory({
+      if (window.dichza) {
+        await window.dichza.addHistory({
           id: crypto.randomUUID(),
           sourceText: inputText,
           translatedText: fullText,

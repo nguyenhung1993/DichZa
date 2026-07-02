@@ -5,18 +5,25 @@ import './Settings.css'
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
+  const [updateVersion, setUpdateVersion] = useState<string | null>(null)
 
   useEffect(() => {
-    if (window.hotlingo) {
-      window.hotlingo.getSettings().then(s => setSettings(s))
+    if (window.dichza) {
+      window.dichza.getSettings().then(s => setSettings(s))
+      const cleanupUpdate = window.dichza.onUpdateDownloaded((version) => {
+        setUpdateVersion(version)
+      })
+      return () => {
+        if (cleanupUpdate) cleanupUpdate()
+      }
     }
   }, [])
 
   const updateSetting = async (updates: Partial<AppSettings>) => {
     const newSettings = { ...settings, ...updates }
     setSettings(newSettings)
-    if (window.hotlingo) {
-      await window.hotlingo.setSettings(newSettings)
+    if (window.dichza) {
+      await window.dichza.setSettings(newSettings)
     }
   }
 
@@ -88,6 +95,18 @@ export default function SettingsPanel() {
       </div>
 
       <div className="settings-group">
+        <h3 className="settings-group__title">⚙️ Hệ thống</h3>
+        <div className="settings-item">
+          <span className="settings-item__label">Khởi động cùng Windows</span>
+          <input 
+            type="checkbox" 
+            checked={settings.autoStartWithWindows ?? true}
+            onChange={e => updateSetting({ autoStartWithWindows: e.target.checked })}
+          />
+        </div>
+      </div>
+
+      <div className="settings-group">
         <h3 className="settings-group__title">🎨 Giao diện</h3>
         <div className="settings-item">
           <span className="settings-item__label">Ngôn ngữ UI</span>
@@ -108,12 +127,28 @@ export default function SettingsPanel() {
           <span className="settings-item__label">Phiên bản</span>
           <span className="settings-item__value-text">1.0.0</span>
         </div>
+        {updateVersion && (
+          <div className="settings-item" style={{ flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+            <span style={{ color: '#4CAF50', fontSize: '13px', fontWeight: 'bold' }}>
+              ✨ Đã tải xong bản cập nhật mới ({updateVersion})
+            </span>
+            <button 
+              className="settings-quit" 
+              style={{ backgroundColor: '#4CAF50', color: 'white', width: '100%', padding: '10px' }}
+              onClick={() => {
+                if (window.dichza) window.dichza.installUpdate()
+              }}
+            >
+              🔄 Khởi động lại & Cập nhật
+            </button>
+          </div>
+        )}
       </div>
 
       <button
         className="settings-quit"
         onClick={() => {
-          if (window.hotlingo) window.hotlingo.quitApp()
+          if (window.dichza) window.dichza.quitApp()
         }}
       >
         ❌ Thoát DichZa

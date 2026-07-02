@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Shared Types
+// DichZa — Shared Types
 // Dùng chung giữa Main, Preload và Renderer processes
 // ============================================================
 
@@ -7,7 +7,7 @@
 export type LanguageCode = 'vi' | 'en' | 'ja' | 'ko' | 'zh-CN' | 'zh-TW' | 'fr' | 'de' | 'es' | 'th' | 'auto'
 
 /** Nhà cung cấp dịch thuật */
-export type TranslationProvider = 'google' | 'openai' | 'hotlingo'
+export type TranslationProvider = 'google' | 'openai' | 'dichza'
 
 /** Kết quả dịch */
 export interface TranslationResult {
@@ -59,6 +59,8 @@ export interface AppSettings {
   theme: 'dark' | 'light'
   /** Auto-hide overlay sau bao lâu (ms) */
   overlayAutoHideMs: number
+  /** Auto-start with Windows */
+  autoStartWithWindows: boolean
   /** OpenAI API key (nếu dùng trực tiếp) */
   openaiApiKey?: string
   /** OpenAI model */
@@ -70,7 +72,8 @@ export interface AppSettings {
 /** Default settings */
 export const DEFAULT_SETTINGS: AppSettings = {
   translateHotkey: 'F4',
-  ocrHotkey: 'Ctrl+Alt+S',
+  ocrHotkey: 'F3',
+  autoStartWithWindows: true,
   sourceLang: 'auto',
   targetLang: 'vi',
   defaultProvider: 'google',
@@ -102,6 +105,8 @@ export const IPC_CHANNELS = {
   SHOW_OVERLAY: 'overlay:show',
   HIDE_OVERLAY: 'overlay:hide',
   OVERLAY_RESIZE: 'overlay:resize',
+  SET_PINNED: 'overlay:set-pinned',
+  UPDATE_DOWNLOADED: 'update:downloaded',
 
   // Renderer → Main
   REQUEST_TRANSLATE: 'translate:request',
@@ -116,5 +121,6 @@ export const IPC_CHANNELS = {
   HIDE_TRAY_POPUP: 'tray:hide',
   QUIT_APP: 'app:quit',
   GET_DESKTOP_SOURCES: 'desktop:sources',
-  CLOSE_OCR_WINDOW: 'ocr:close'
+  CLOSE_OCR_WINDOW: 'ocr:close',
+  INSTALL_UPDATE: 'update:install'
 } as const

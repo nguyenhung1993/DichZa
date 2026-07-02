@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { recognizeText } from '../../services/ocrService'
+import { recognizeLines, OcrLine } from '../../services/ocrService'
 import './RegionSelector.css'
 
 export default function RegionSelector() {
@@ -10,13 +10,22 @@ export default function RegionSelector() {
   const [currentX, setCurrentX] = useState(0)
   const [currentY, setCurrentY] = useState(0)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [translatedLines, setTranslatedLines] = useState<{
+    original: string
+    translated: string
+    x: number
+    y: number
+    width: number
+    height: number
+  }[]>([])
+  
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     async function initStream() {
       try {
-        const sources = await window.hotlingo.getDesktopSources()
+        const sources = await window.dichza.getDesktopSources()
         
         // Parse displayId from hash: #/ocr?displayId=123
         const searchParams = new URLSearchParams(window.location.hash.split('?')[1] || '')
@@ -52,7 +61,7 @@ export default function RegionSelector() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        window.hotlingo.closeOcrWindow()
+        window.dichza.closeOcrWindow()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -60,6 +69,11 @@ export default function RegionSelector() {
   }, [])
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Nếu đang hiện kết quả dịch, click bất kỳ đâu để đóng
+    if (translatedLines.length > 0) {
+      window.dichza.closeOcrWindow()
+      return
+    }
     if (isProcessing) return
     setIsSelecting(true)
     setStartX(e.clientX)
@@ -91,34 +105,59 @@ export default function RegionSelector() {
 
     if (videoRef.current && canvasRef.current) {
       const canvas = canvasRef.current
-      canvas.width = width
-      canvas.height = height
+      // Phóng to ảnh 2.5x để Tesseract nhận diện chữ nhỏ (UI hệ thống) tốt hơn
+      const SCALE_FACTOR = 2.5
+      canvas.width = width * SCALE_FACTOR
+      canvas.height = height * SCALE_FACTOR
       const ctx = canvas.getContext('2d')
       
       if (ctx) {
         // Source video dimensions
         const video = videoRef.current
-        const scaleX = video.videoWidth / window.innerWidth
-        const scaleY = video.videoHeight / window.innerHeight
+        // Sử dụng window.screen thay vì window.inner để tính tỷ lệ chính xác
+        // tránh lỗi tọa độ bị lệch khi cửa sổ bị Taskbar ép nhỏ lại
+        const scaleX = video.videoWidth / window.screen.width
+        const scaleY = video.videoHeight / window.screen.height
         
         ctx.drawImage(
           video,
           x * scaleX, y * scaleY, width * scaleX, height * scaleY,
-          0, 0, width, height
+          0, 0, width * SCALE_FACTOR, height * SCALE_FACTOR
         )
 
         const dataUrl = canvas.toDataURL('image/png')
         try {
-          const text = await recognizeText(dataUrl)
-          if (text) {
-             window.hotlingo.sendOcrResult(text)
+          const lines = await recognizeLines(dataUrl)
+          
+          if (lines && lines.length > 0) {
+            // Translate all lines in parallel
+            const translations = await Promise.all(
+              lines.map(async (line: OcrLine) => {
+                try {
+                  const res = await window.dichza.translateGoogle(line.text, 'auto', 'vi')
+                  return {
+                    original: line.text,
+                    translated: res.text,
+                    // Map bbox relative to the cropped scaled canvas back to screen coordinates
+                    x: x + (line.bbox.x0 / SCALE_FACTOR),
+                    y: y + (line.bbox.y0 / SCALE_FACTOR),
+                    width: (line.bbox.x1 - line.bbox.x0) / SCALE_FACTOR,
+                    height: (line.bbox.y1 - line.bbox.y0) / SCALE_FACTOR
+                  }
+                } catch (e) {
+                  return null
+                }
+              })
+            )
+            setTranslatedLines(translations.filter(Boolean) as any)
           } else {
-             // No text found, close
-             window.hotlingo.closeOcrWindow()
+             window.dichza.closeOcrWindow()
           }
         } catch (error) {
           console.error(error)
-          window.hotlingo.closeOcrWindow()
+          window.dichza.closeOcrWindow()
+        } finally {
+          setIsProcessing(false)
         }
       }
     }
@@ -158,11 +197,31 @@ export default function RegionSelector() {
         </div>
       )}
       
-      {!isSelecting && !isProcessing && (
+      {!isSelecting && !isProcessing && translatedLines.length === 0 && (
         <div className="hint-text">
           Kéo thả để chọn vùng văn bản (ESC để hủy)
         </div>
       )}
+      
+      {/* In-Place Translated Blocks */}
+      {translatedLines.map((line: any, idx) => (
+        <div 
+          key={idx}
+          className="in-place-translation"
+          style={{
+            left: line.x,
+            top: line.y,
+            minWidth: Math.max(line.width, 20),
+            height: line.height, // Ép cứng chiều cao chuẩn của Tesseract
+            fontSize: Math.max(line.height * 0.7, 10), // Font size ăn theo chiều cao gốc
+          }}
+          title={line.original}
+        >
+          <div className="translation-text-inner">
+            {line.translated}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Settings Zustand Store
+// DichZa — Settings Zustand Store
 // ============================================================
 
 import { create } from 'zustand'
@@ -17,8 +17,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   isLoaded: false,
 
   loadSettings: async () => {
-    if (window.hotlingo) {
-      const settings = await window.hotlingo.getSettings()
+    if (window.dichza) {
+      const settings = await window.dichza.getSettings()
       set({ settings, isLoaded: true })
     }
   },
@@ -29,8 +29,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
     set({ settings: updated })
 
-    if (window.hotlingo) {
-      await window.hotlingo.setSettings(partial)
+    if (window.dichza) {
+      await window.dichza.setSettings(partial)
     }
   }
 }))

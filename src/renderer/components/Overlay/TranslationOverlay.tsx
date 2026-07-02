@@ -1,5 +1,5 @@
 // ============================================================
-// HotLingo — Translation Overlay Component
+// DichZa — Translation Overlay Component
 // Hiện bản dịch ngay cạnh cursor, streaming effect
 // ============================================================
 
@@ -25,11 +25,18 @@ function TranslationOverlay(): JSX.Element {
   const [perMessageContext, setPerMessageContext] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Sync pinned state to main process
+  useEffect(() => {
+    if (window.dichza?.setPinned) {
+      window.dichza.setPinned(isPinned)
+    }
+  }, [isPinned])
+
   // Lắng nghe selected text từ main process
   useEffect(() => {
-    if (!window.hotlingo) return
+    if (!window.dichza) return
 
-    const cleanup = window.hotlingo.onSelectedText(
+    const cleanup = window.dichza.onSelectedText(
       async (data: TranslationData) => {
         setSourceText(data.text)
         setProvider(data.provider)
@@ -45,12 +52,12 @@ function TranslationOverlay(): JSX.Element {
   }, [perMessageContext]) // Depend on perMessageContext so it uses the latest value if user typed something before selecting text again, although usually context is typed AFTER?
 
   // Thực hiện dịch
-  const doTranslate = async (text: string, sourceLang: string, targetLang: string, provider: 'google' | 'openai' | 'hotlingo') => {
+  const doTranslate = async (text: string, sourceLang: string, targetLang: string, provider: 'google' | 'openai' | 'dichza') => {
     try {
       setIsTranslating(true)
       setTranslatedText('')
 
-      const settings = await window.hotlingo.getSettings()
+      const settings = await window.dichza.getSettings()
 
       const options: TranslateOptions = {
         text,
@@ -87,8 +94,8 @@ function TranslationOverlay(): JSX.Element {
 
   // Copy translation
   const handleCopy = useCallback(async () => {
-    if (window.hotlingo && translatedText) {
-      await window.hotlingo.copyToClipboard(translatedText)
+    if (window.dichza && translatedText) {
+      await window.dichza.copyToClipboard(translatedText)
       setCopyFeedback(true)
       setTimeout(() => setCopyFeedback(false), 1500)
     }
@@ -96,8 +103,8 @@ function TranslationOverlay(): JSX.Element {
 
   // Close overlay
   const handleClose = useCallback(() => {
-    if (window.hotlingo) {
-      window.hotlingo.hideOverlay()
+    if (window.dichza) {
+      window.dichza.hideOverlay()
     }
   }, [])
 
@@ -117,7 +124,7 @@ function TranslationOverlay(): JSX.Element {
     switch (p) {
       case 'google': return '🔵 Google'
       case 'openai': return '🟢 OpenAI'
-      case 'hotlingo': return '🟣 DichZa AI'
+      case 'dichza': return '🟣 DichZa AI'
       default: return p
     }
   }
@@ -134,7 +141,7 @@ function TranslationOverlay(): JSX.Element {
 
   // Tự động resize overlay window dựa trên content
   useEffect(() => {
-    if (!containerRef.current || !window.hotlingo?.resizeOverlay) return
+    if (!containerRef.current || !window.dichza?.resizeOverlay) return
 
     const card = containerRef.current.querySelector('.overlay-card')
     if (!card) return
@@ -145,7 +152,7 @@ function TranslationOverlay(): JSX.Element {
         // Cộng thêm 20px buffer để đảm bảo không bao giờ bị cắt cụt UI
         const width = Math.ceil(rect.width) + 20
         const height = Math.min(Math.ceil(rect.height) + 20, 800) // Cap window at 800px
-        window.hotlingo.resizeOverlay(width, height)
+        window.dichza.resizeOverlay(width, height)
       }
     })
 

@@ -27,5 +27,12 @@
     "allowToChangeInstallationDirectory": false,
     "deleteAppDataOnUninstall": false,
     "shortcutName": "DichZa"
-  }
+  },
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "nguyenhung1993",
+      "repo": "DichZa"
+    }
+  ]
 }

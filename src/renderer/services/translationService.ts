@@ -1,12 +1,12 @@
 // ============================================================
-// HotLingo — Translation Service
+// DichZa — Translation Service
 // Orchestrator cho các translation providers
 // ============================================================
 
 import { translateWithGoogle } from './googleTranslate'
 import { translateWithOpenAI, translateWithOpenAIStream } from './openaiTranslate'
 
-export type TranslationProvider = 'google' | 'openai' | 'hotlingo'
+export type TranslationProvider = 'google' | 'openai' | 'dichza'
 
 export interface TranslateOptions {
   text: string
@@ -58,8 +58,8 @@ export async function translate(options: TranslateOptions): Promise<TranslateRes
         break
       }
 
-      case 'hotlingo': {
-        // TODO: Implement HotLingo AI credits
+      case 'dichza': {
+        // TODO: Implement DichZa AI credits
         // Tạm thời fallback sang Google
         const result = await translateWithGoogle(options.text, options.from, options.to)
         translatedText = result.text
