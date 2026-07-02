@@ -5,9 +5,9 @@
 /* App container cho tray popup */
 .app-container {
   height: 100%;
-  background: var(--color-glass);
-  backdrop-filter: blur(var(--blur-lg));
-  -webkit-backdrop-filter: blur(var(--blur-lg));
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-lg);
   overflow: hidden;

@@ -44,6 +44,20 @@ export function registerIpcHandlers(
       })
     }
 
+    // Cập nhật native background color để tránh viền xám đen ở Light Mode
+    if (updated.theme === 'light') {
+      mainWindow.setBackgroundColor('#f8f9fa')
+      if (overlayWindow && !overlayWindow.isDestroyed()) overlayWindow.setBackgroundColor('#f8f9fa')
+    } else {
+      mainWindow.setBackgroundColor('#1E1E2E')
+      if (overlayWindow && !overlayWindow.isDestroyed()) overlayWindow.setBackgroundColor('#0F1118')
+    }
+
+    // Broadcast the updated settings to overlay window so it can re-render theme
+    if (overlayWindow && !overlayWindow.isDestroyed()) {
+      overlayWindow.webContents.send('settings:changed', updated)
+    }
+
     // Re-register hotkeys nếu đổi phím tắt
     if (settings.translateHotkey || settings.ocrHotkey) {
       reregisterHotkeys(mainWindow, overlayWindow)

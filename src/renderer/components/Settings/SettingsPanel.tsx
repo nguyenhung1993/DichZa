@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
-import { AppSettings, DEFAULT_SETTINGS } from '../../../shared/types'
+import { AppSettings } from '../../../shared/types'
+import { useSettingsStore } from '../../stores/settingsStore'
 import ContextSettings from './ContextSettings'
 import './Settings.css'
 
 export default function SettingsPanel() {
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
+  const { settings, updateSettings: updateSetting } = useSettingsStore()
   const [updateVersion, setUpdateVersion] = useState<string | null>(null)
 
   useEffect(() => {
     if (window.dichza) {
-      window.dichza.getSettings().then(s => setSettings(s))
       const cleanupUpdate = window.dichza.onUpdateDownloaded((version) => {
         setUpdateVersion(version)
       })
@@ -18,14 +18,6 @@ export default function SettingsPanel() {
       }
     }
   }, [])
-
-  const updateSetting = async (updates: Partial<AppSettings>) => {
-    const newSettings = { ...settings, ...updates }
-    setSettings(newSettings)
-    if (window.dichza) {
-      await window.dichza.setSettings(newSettings)
-    }
-  }
 
   return (
     <div className="settings-panel animate-fade-in">
@@ -89,25 +81,41 @@ export default function SettingsPanel() {
         )}
       </div>
 
-      <div className="settings-group">
-        <h3 className="settings-group__title">🧠 Smart Context</h3>
-        <ContextSettings settings={settings} onSave={updateSetting} />
-      </div>
+      {settings.defaultProvider === 'openai' && (
+        <div className="settings-group animate-fade-in">
+          <h3 className="settings-group__title">🧠 Smart Context</h3>
+          <ContextSettings settings={settings} onSave={updateSetting} />
+        </div>
+      )}
 
       <div className="settings-group">
         <h3 className="settings-group__title">⚙️ Hệ thống</h3>
         <div className="settings-item">
           <span className="settings-item__label">Khởi động cùng Windows</span>
-          <input 
-            type="checkbox" 
-            checked={settings.autoStartWithWindows ?? true}
-            onChange={e => updateSetting({ autoStartWithWindows: e.target.checked })}
-          />
+          <label className="settings-switch">
+            <input 
+              type="checkbox" 
+              checked={settings.autoStartWithWindows ?? true}
+              onChange={e => updateSetting({ autoStartWithWindows: e.target.checked })}
+            />
+            <span className="settings-switch__slider"></span>
+          </label>
         </div>
       </div>
 
       <div className="settings-group">
         <h3 className="settings-group__title">🎨 Giao diện</h3>
+        <div className="settings-item">
+          <span className="settings-item__label">Chế độ hiển thị (Theme)</span>
+          <select 
+             className="settings-item__select"
+             value={settings.theme || 'dark'}
+             onChange={e => updateSetting({ theme: e.target.value as any })}
+          >
+            <option value="dark">🌙 Chế độ Tối (Dark)</option>
+            <option value="light">☀️ Chế độ Sáng (Light)</option>
+          </select>
+        </div>
         <div className="settings-item">
           <span className="settings-item__label">Ngôn ngữ UI</span>
           <select 

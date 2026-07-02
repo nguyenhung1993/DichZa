@@ -111,6 +111,13 @@ const api = {
     return () => ipcRenderer.removeListener('navigate', handler)
   },
 
+  /** Lắng nghe thay đổi settings từ window khác */
+  onSettingsChanged: (callback: (settings: AppSettings) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, settings: AppSettings) => callback(settings)
+    ipcRenderer.on('settings:changed', handler)
+    return () => ipcRenderer.removeListener('settings:changed', handler)
+  },
+
   /** Lắng nghe OCR request */
   onOcrRequest: (callback: () => void): (() => void) => {
     const handler = () => callback()

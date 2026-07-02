@@ -5,23 +5,45 @@
 
 :root {
   /* ─── Color Palette ─── */
-  --color-bg-primary: #0d0f14;
-  --color-bg-secondary: #141721;
-  --color-bg-tertiary: #1a1e2e;
-  --color-bg-elevated: #1f2437;
-  --color-bg-hover: #252a3e;
+  --color-bg-primary: #181926;
+  --color-bg-secondary: #1e1e2e;
+  --color-bg-tertiary: #28293d;
+  --color-bg-elevated: #31324a;
+  --color-bg-hover: #3d3e5c;
 
   /* Glass effect */
-  --color-glass: rgba(20, 23, 33, 0.85);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
-  --color-glass-hover: rgba(30, 34, 50, 0.9);
+  --color-glass: rgba(30, 30, 46, 0.75);
+  --color-glass-border: rgba(255, 255, 255, 0.15);
+  --color-glass-hover: rgba(40, 41, 61, 0.85);
 
   /* Text */
   --color-text-primary: #e8eaf0;
   --color-text-secondary: #8b90a5;
   --color-text-muted: #5a5f75;
   --color-text-accent: #7c8aff;
+}
 
+[data-theme='light'] {
+  /* ─── Light Color Palette ─── */
+  --color-bg-primary: #f8f9fa;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f1f3f5;
+  --color-bg-elevated: #e9ecef;
+  --color-bg-hover: #dee2e6;
+
+  /* Glass effect */
+  --color-glass: rgba(255, 255, 255, 0.75);
+  --color-glass-border: rgba(0, 0, 0, 0.1);
+  --color-glass-hover: rgba(255, 255, 255, 0.9);
+
+  /* Text */
+  --color-text-primary: #212529;
+  --color-text-secondary: #495057;
+  --color-text-muted: #868e96;
+  --color-text-accent: #5a67d8;
+}
+
+:root {
   /* Accent gradient */
   --gradient-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --gradient-accent-hover: linear-gradient(135deg, #7b8ff5 0%, #8a5db5 100%);

@@ -99,6 +99,7 @@
 .tray-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--space-3) var(--space-4);
 }
 
@@ -358,6 +359,7 @@
   gap: var(--space-2);
   max-height: 300px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .history-item {

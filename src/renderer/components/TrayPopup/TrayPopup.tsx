@@ -7,32 +7,29 @@
 import { useState, useEffect, useCallback } from 'react'
 import './TrayPopup.css'
 import SettingsPanel from '../Settings/SettingsPanel'
+import { translate } from '../../services/translationService'
+import { useSettingsStore } from '../../stores/settingsStore'
 
 type Tab = 'translate' | 'history' | 'settings'
 
-interface TranslationEntry {
-  id: string
-  sourceText: string
-  translatedText: string
-  sourceLang: string
-  targetLang: string
-  provider: string
-  timestamp: number
-}
+import { TranslationResult } from '../../shared/types'
 
 function TrayPopup(): JSX.Element {
+  const { settings, loadSettings } = useSettingsStore()
   const [activeTab, setActiveTab] = useState<Tab>('translate')
   const [inputText, setInputText] = useState('')
   const [translatedText, setTranslatedText] = useState('')
   const [isTranslating, setIsTranslating] = useState(false)
   const [sourceLang, setSourceLang] = useState('auto')
   const [targetLang, setTargetLang] = useState('vi')
-  const [history, setHistory] = useState<TranslationEntry[]>([])
+  const [history, setHistory] = useState<TranslationResult[]>([])
   const [historySearch, setHistorySearch] = useState('')
   const [copyFeedback, setCopyFeedback] = useState(false)
 
   // Lắng nghe navigation events từ tray menu
   useEffect(() => {
+    loadSettings()
+    
     if (window.dichza) {
       const cleanup = window.dichza.onNavigate((page: string) => {
         if (page === 'settings' || page === 'history' || page === 'translate') {
@@ -41,7 +38,7 @@ function TrayPopup(): JSX.Element {
       })
       return cleanup
     }
-  }, [])
+  }, [loadSettings])
 
   // Load history khi mở tab
   useEffect(() => {
@@ -60,17 +57,45 @@ function TrayPopup(): JSX.Element {
     setTranslatedText('')
 
     try {
-      // TODO: Implement translation service call
-      // Tạm thời dùng mock
-      await new Promise((r) => setTimeout(r, 800))
-      setTranslatedText(`[Bản dịch của: "${inputText}"]`)
-    } catch (error) {
+      const result = await translate({
+        text: inputText,
+        from: sourceLang,
+        to: targetLang,
+        provider: settings.defaultProvider,
+        smartContext: settings.smartContext,
+        apiKey: settings.openaiApiKey,
+        model: settings.openaiModel
+      })
+
+      setTranslatedText(result.translatedText)
+
+      // Lưu lịch sử
+      const historyItem: TranslationResult = {
+        id: crypto.randomUUID(),
+        sourceText: inputText,
+        translatedText: result.translatedText,
+        sourceLang: sourceLang as any,
+        targetLang: targetLang as any,
+        provider: result.provider,
+        timestamp: Date.now(),
+        duration: result.duration || 0,
+        source: 'selection'
+      }
+      
+      if (window.dichza) {
+        await window.dichza.addHistory(historyItem)
+      }
+      
+      // Update local history
+      setHistory(prev => [historyItem, ...prev])
+
+    } catch (error: any) {
       console.error('Translation error:', error)
-      setTranslatedText('Lỗi khi dịch. Vui lòng thử lại.')
+      setTranslatedText(`Lỗi khi dịch: ${error.message || 'Vui lòng thử lại.'}`)
     } finally {
       setIsTranslating(false)
     }
-  }, [inputText, isTranslating])
+  }, [inputText, isTranslating, sourceLang, targetLang, settings])
 
   // Copy translation
   const handleCopy = useCallback(async (text: string) => {
@@ -248,11 +273,7 @@ function TrayPopup(): JSX.Element {
             {/* Hotkey hint */}
             <div className="hotkey-hint">
               <span className="hotkey-hint__text">💡 Mẹo: Chọn text ở bất kỳ app nào rồi bấm</span>
-              <kbd className="hotkey-hint__key">Ctrl</kbd>
-              <span>+</span>
-              <kbd className="hotkey-hint__key">Alt</kbd>
-              <span>+</span>
-              <kbd className="hotkey-hint__key">T</kbd>
+              <kbd className="hotkey-hint__key">F4</kbd>
             </div>
           </div>
         )}

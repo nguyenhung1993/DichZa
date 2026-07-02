@@ -35,6 +35,9 @@ let overlayWindow: BrowserWindow | null = null
 let regionSelectorWindow: BrowserWindow | null = null
 
 function createMainWindow(): BrowserWindow {
+  const settings = getSettings()
+  const bgColor = settings.theme === 'light' ? '#f8f9fa' : '#1E1E2E'
+
   mainWindow = new BrowserWindow({
     width: 380,
     height: 520,
@@ -43,7 +46,7 @@ function createMainWindow(): BrowserWindow {
     resizable: false,
     skipTaskbar: true,
     transparent: false, // Fix invisibility issue with GPU disabled
-    backgroundColor: '#1E1E2E', // Solid background for settings panel
+    backgroundColor: bgColor, // Solid background for settings panel
     alwaysOnTop: true,
     icon: is.dev ? join(__dirname, '../../resources/icon.png') : join(process.resourcesPath, 'resources/icon.png'),
     webPreferences: {

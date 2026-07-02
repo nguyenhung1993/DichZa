@@ -7,6 +7,7 @@ import { BrowserWindow } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { OVERLAY_SIZE } from '../shared/constants'
+import { getSettings } from './store'
 
 let isOverlayPinned = false
 
@@ -19,13 +20,16 @@ export function setOverlayPinned(pinned: boolean): void {
  * Window này sẽ hiện bản dịch ngay cạnh cursor
  */
 export function createOverlayWindow(): BrowserWindow {
+  const settings = getSettings()
+  const bgColor = settings.theme === 'light' ? '#f8f9fa' : '#0F1118'
+
   const overlay = new BrowserWindow({
     width: OVERLAY_SIZE.width,
     height: OVERLAY_SIZE.height,
     show: false,
     frame: false,
     transparent: false, // Must be false when Hardware Acceleration is disabled
-    backgroundColor: '#0F1118', // Same as CSS overlay background
+    backgroundColor: bgColor, // Dynamic based on theme
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: true, // Phải bật true thì Windows mới cho phép dùng lệnh setSize() từ code

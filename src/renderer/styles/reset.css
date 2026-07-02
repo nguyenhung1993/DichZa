@@ -9,7 +9,7 @@
 }
 
 html, body {
-  min-height: 100%;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   background: transparent;
@@ -72,6 +72,7 @@ img {
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
