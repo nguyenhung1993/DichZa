@@ -5,8 +5,9 @@
 
 import { translateWithGoogle } from './googleTranslate'
 import { translateWithOpenAI, translateWithOpenAIStream } from './openaiTranslate'
+import { translateWithGemini, translateWithGeminiStream } from './geminiTranslate'
 
-export type TranslationProvider = 'google' | 'openai' | 'dichza'
+export type TranslationProvider = 'google' | 'openai' | 'gemini' | 'dichza'
 
 export interface TranslateOptions {
   text: string
@@ -19,6 +20,10 @@ export interface TranslateOptions {
   apiKey?: string
   /** Model (OpenAI) */
   model?: string
+  /** Gemini API key */
+  geminiApiKey?: string
+  /** Gemini model */
+  geminiModel?: string
 }
 
 export interface TranslateResult {
@@ -26,10 +31,13 @@ export interface TranslateResult {
   detectedLang?: string
   provider: TranslationProvider
   duration: number
+  /** Nếu đã fallback từ provider khác */
+  fallbackFrom?: TranslationProvider
 }
 
 /**
  * Dịch text với provider đã chọn
+ * Tự động fallback nếu Google bị rate limit
  */
 export async function translate(options: TranslateOptions): Promise<TranslateResult> {
   const startTime = Date.now()
@@ -58,6 +66,18 @@ export async function translate(options: TranslateOptions): Promise<TranslateRes
         break
       }
 
+      case 'gemini': {
+        translatedText = await translateWithGemini(
+          options.text,
+          options.from,
+          options.to,
+          options.smartContext,
+          options.geminiApiKey,
+          options.geminiModel
+        )
+        break
+      }
+
       case 'dichza': {
         // TODO: Implement DichZa AI credits
         // Tạm thời fallback sang Google
@@ -77,33 +97,69 @@ export async function translate(options: TranslateOptions): Promise<TranslateRes
       provider: options.provider,
       duration: Date.now() - startTime
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[DichZa] Translation error (${options.provider}):`, error)
+
+    // ── Fallback logic: Google fail → thử Gemini (nếu có key) ──
+    if (options.provider === 'google' && options.geminiApiKey) {
+      console.warn('[DichZa] Google Translate fail, fallback sang Gemini...')
+      try {
+        const fallbackText = await translateWithGemini(
+          options.text,
+          options.from,
+          options.to,
+          options.smartContext,
+          options.geminiApiKey,
+          options.geminiModel
+        )
+        return {
+          translatedText: fallbackText,
+          provider: 'gemini',
+          duration: Date.now() - startTime,
+          fallbackFrom: 'google'
+        }
+      } catch (fallbackError: any) {
+        console.error('[DichZa] Gemini fallback cũng fail:', fallbackError)
+        // Throw lỗi gốc từ Google (thông tin hữu ích hơn)
+      }
+    }
+
     throw error
   }
 }
 
 /**
- * Stream translation (OpenAI only)
+ * Stream translation (OpenAI / Gemini)
  * Trả về AsyncGenerator yield từng token
  */
 export async function* translateStream(
   options: TranslateOptions
 ): AsyncGenerator<string, void, unknown> {
-  if (options.provider !== 'openai') {
-    // Non-streaming providers: trả kết quả 1 lần
-    const result = await translate(options)
-    yield result.translatedText
+  if (options.provider === 'openai') {
+    yield* translateWithOpenAIStream(
+      options.text,
+      options.from,
+      options.to,
+      options.smartContext,
+      options.apiKey,
+      options.model
+    )
     return
   }
 
-  // OpenAI streaming
-  yield* translateWithOpenAIStream(
-    options.text,
-    options.from,
-    options.to,
-    options.smartContext,
-    options.apiKey,
-    options.model
-  )
+  if (options.provider === 'gemini') {
+    yield* translateWithGeminiStream(
+      options.text,
+      options.from,
+      options.to,
+      options.smartContext,
+      options.geminiApiKey,
+      options.geminiModel
+    )
+    return
+  }
+
+  // Non-streaming providers: trả kết quả 1 lần
+  const result = await translate(options)
+  yield result.translatedText
 }

@@ -1,0 +1,30 @@
+/* Thêm vào cuối file CSS */
+.history-item--expanded .history-item__source,
+.history-item--expanded .history-item__translated {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: none;
+}
+
+.history-item__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.history-item__action-btn {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-glass-border);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.history-item__action-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}

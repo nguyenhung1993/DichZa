@@ -50,26 +50,49 @@ export default function ContextSettings({ settings, onSave }: Props) {
         />
       </div>
 
-      <div className="settings-item">
+      <div className="settings-item settings-item--col">
+        <label className="settings-item__checkbox">
+          <input 
+            type="checkbox"
+            checked={!!context.persistent.autoDetect}
+            onChange={(e) => handleUpdate({ autoDetect: e.target.checked })}
+          />
+          <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>🚀 Tự động nhận diện ngữ cảnh & ngữ điệu</span>
+        </label>
+        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px', marginLeft: '24px' }}>
+          AI sẽ tự đọc hiểu nội dung và chọn giọng văn/lĩnh vực dịch phù hợp nhất.
+        </div>
+      </div>
+
+      <div className="settings-item" style={{ opacity: context.persistent.autoDetect ? 0.5 : 1 }}>
         <span className="settings-item__label">Lĩnh vực (Domain)</span>
         <select 
           className="settings-item__select"
           value={context.persistent.domain}
           onChange={e => handleUpdate({ domain: e.target.value })}
+          disabled={context.persistent.autoDetect}
         >
           <option value="general">Chung (General)</option>
-          <option value="IT/Software">Công nghệ phần mềm</option>
-          <option value="Business">Kinh doanh</option>
-          <option value="Casual">Đời sống thường ngày</option>
+          <option value="IT/Software">Công nghệ phần mềm (IT)</option>
+          <option value="Business">Kinh doanh (Business)</option>
+          <option value="Finance">Tài chính (Finance)</option>
+          <option value="Medical">Y tế (Medical)</option>
+          <option value="Legal">Pháp lý (Legal)</option>
+          <option value="Marketing">Truyền thông / Marketing</option>
+          <option value="Gaming">Trò chơi (Gaming)</option>
+          <option value="Academic">Học thuật (Academic)</option>
+          <option value="E-commerce">Thương mại điện tử (E-commerce)</option>
+          <option value="Casual">Đời sống thường ngày (Casual)</option>
         </select>
       </div>
 
-      <div className="settings-item">
+      <div className="settings-item" style={{ opacity: context.persistent.autoDetect ? 0.5 : 1 }}>
         <span className="settings-item__label">Ngữ điệu (Tone)</span>
         <select 
           className="settings-item__select"
           value={context.persistent.tone}
           onChange={e => handleUpdate({ tone: e.target.value as any })}
+          disabled={context.persistent.autoDetect}
         >
           <option value="professional">Chuyên nghiệp (Professional)</option>
           <option value="formal">Trang trọng (Formal)</option>

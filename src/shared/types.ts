@@ -7,7 +7,7 @@
 export type LanguageCode = 'vi' | 'en' | 'ja' | 'ko' | 'zh-CN' | 'zh-TW' | 'fr' | 'de' | 'es' | 'th' | 'auto'
 
 /** Nhà cung cấp dịch thuật */
-export type TranslationProvider = 'google' | 'openai' | 'dichza'
+export type TranslationProvider = 'google' | 'openai' | 'gemini' | 'dichza'
 
 /** Kết quả dịch */
 export interface TranslationResult {
@@ -39,6 +39,7 @@ export interface PersistentContext {
   domain: string
   tone: 'professional' | 'casual' | 'formal' | 'friendly'
   glossary: Record<string, string>
+  autoDetect?: boolean
 }
 
 /** Cài đặt app */
@@ -65,6 +66,10 @@ export interface AppSettings {
   openaiApiKey?: string
   /** OpenAI model */
   openaiModel: string
+  /** Gemini API key */
+  geminiApiKey?: string
+  /** Gemini model */
+  geminiModel: string
   /** Smart Context */
   smartContext: SmartContext
 }
@@ -81,12 +86,14 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   overlayAutoHideMs: 10000,
   openaiModel: 'gpt-4o-mini',
+  geminiModel: 'gemini-2.0-flash',
   smartContext: {
     persistent: {
       role: 'Bạn là một phiên dịch chuyên nghiệp',
       domain: 'general',
       tone: 'professional',
-      glossary: {}
+      glossary: {},
+      autoDetect: true
     },
     perMessage: '',
     perScreenshot: ''

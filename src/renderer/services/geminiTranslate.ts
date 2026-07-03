@@ -1,20 +1,19 @@
 // ============================================================
-// DichZa — OpenAI Translation Service (Paid, Streaming)
-// Dịch bằng OpenAI với Smart Context, SSE streaming
+// DichZa — Gemini Translation Service (Free Tier, Streaming)
+// Dịch bằng Google Gemini API với Smart Context, SSE streaming
 // ============================================================
 
 import { SUPPORTED_LANGUAGES } from '../../shared/constants'
-
 import type { SmartContext } from '../../shared/types'
 
 /**
  * Build system prompt cho translation kết hợp Smart Context
+ * (Tái sử dụng cùng logic với OpenAI)
  */
 function buildSystemPrompt(from: string, to: string, context?: SmartContext): string {
   const fromName = SUPPORTED_LANGUAGES.find(l => l.code === from)?.nameEn || from
   const toName = SUPPORTED_LANGUAGES.find(l => l.code === to)?.nameEn || to
 
-  // Bắt đầu bằng role từ persistent context, fallback về mặc định
   let prompt = context?.persistent?.role || `You are a professional translator.`
   prompt += ` Translate the following text`
 
@@ -24,7 +23,6 @@ function buildSystemPrompt(from: string, to: string, context?: SmartContext): st
     prompt += ` from ${fromName} to ${toName}.`
   }
 
-  // Thêm tone và domain
   if (context?.persistent?.autoDetect) {
     prompt += `\n[AUTO SMART CONTEXT]: You MUST automatically analyze the source text to detect its domain/field (e.g. IT, Medical, Casual chat, Legal) and its tone (e.g. formal, friendly, professional). Dynamically adapt your translation vocabulary and style to perfectly match the detected context.`
   } else {
@@ -63,9 +61,9 @@ function buildSystemPrompt(from: string, to: string, context?: SmartContext): st
 }
 
 /**
- * Non-streaming OpenAI translation
+ * Non-streaming Gemini translation
  */
-export async function translateWithOpenAI(
+export async function translateWithGemini(
   text: string,
   from: string,
   to: string,
@@ -74,71 +72,101 @@ export async function translateWithOpenAI(
   model?: string
 ): Promise<string> {
   if (!apiKey) {
-    throw new Error('OpenAI API key chưa được cấu hình. Vào Cài đặt để thêm.')
+    throw new Error('Gemini API key chưa được cấu hình. Vào Cài đặt để thêm.')
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: model || 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: buildSystemPrompt(from, to, context) },
-        { role: 'user', content: text }
-      ],
-      temperature: 0.3,
-      max_tokens: 4096
-    })
-  })
+  const modelName = model || 'gemini-2.0-flash'
+  const systemPrompt = buildSystemPrompt(from, to, context)
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text }]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 4096
+        }
+      })
+    }
+  )
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
-    throw new Error(`OpenAI error: ${error.error?.message || response.statusText}`)
+    const msg = error?.error?.message || response.statusText
+    if (response.status === 429) {
+      throw new Error(`Gemini API rate limit: ${msg}`)
+    }
+    throw new Error(`Gemini error: ${msg}`)
   }
 
   const data = await response.json()
-  return data.choices[0]?.message?.content?.trim() || ''
+  const resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text
+  if (!resultText) {
+    throw new Error('Gemini không trả về kết quả dịch.')
+  }
+
+  return resultText.trim()
 }
 
 /**
- * Streaming OpenAI translation (yield từng token)
+ * Streaming Gemini translation (yield từng token)
  */
-export async function* translateWithOpenAIStream(
+export async function* translateWithGeminiStream(
   text: string,
   from: string,
   to: string,
-  context?: import('../../shared/types').SmartContext,
+  context?: SmartContext,
   apiKey?: string,
   model?: string
 ): AsyncGenerator<string, void, unknown> {
   if (!apiKey) {
-    throw new Error('OpenAI API key chưa được cấu hình. Vào Cài đặt để thêm.')
+    throw new Error('Gemini API key chưa được cấu hình. Vào Cài đặt để thêm.')
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: model || 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: buildSystemPrompt(from, to, context) },
-        { role: 'user', content: text }
-      ],
-      temperature: 0.3,
-      max_tokens: 4096,
-      stream: true
-    })
-  })
+  const modelName = model || 'gemini-2.0-flash'
+  const systemPrompt = buildSystemPrompt(from, to, context)
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:streamGenerateContent?alt=sse&key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text }]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 4096
+        }
+      })
+    }
+  )
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
-    throw new Error(`OpenAI error: ${error.error?.message || response.statusText}`)
+    const msg = error?.error?.message || response.statusText
+    if (response.status === 429) {
+      throw new Error(`Gemini API rate limit: ${msg}`)
+    }
+    throw new Error(`Gemini error: ${msg}`)
   }
 
   const reader = response.body?.getReader()
@@ -157,12 +185,12 @@ export async function* translateWithOpenAIStream(
       const trimmed = line.trim()
       if (!trimmed || !trimmed.startsWith('data: ')) continue
 
-      const data = trimmed.slice(6) // Remove "data: " prefix
+      const data = trimmed.slice(6)
       if (data === '[DONE]') return
 
       try {
         const parsed = JSON.parse(data)
-        const token = parsed.choices?.[0]?.delta?.content
+        const token = parsed?.candidates?.[0]?.content?.parts?.[0]?.text
         if (token) {
           yield token
         }

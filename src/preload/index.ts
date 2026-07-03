@@ -62,12 +62,12 @@ const api = {
   // ─────────────────────────────────────────────
   // OCR
   // ─────────────────────────────────────────────
-  getDesktopSources: (): Promise<{id: string, name: string, display_id: string}[]> =>
+  getDesktopSources: (): Promise<{ id: string, name: string, display_id: string }[]> =>
     ipcRenderer.invoke(IPC_CHANNELS.GET_DESKTOP_SOURCES),
 
   closeOcrWindow: (): void =>
     ipcRenderer.send(IPC_CHANNELS.CLOSE_OCR_WINDOW),
-    
+
   sendOcrResult: (text: string): void => {
     ipcRenderer.send(IPC_CHANNELS.OCR_RESULT, text)
   },

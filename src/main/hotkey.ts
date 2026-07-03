@@ -26,6 +26,7 @@ export function registerHotkeys(
       console.log('[DichZa] Translate hotkey triggered')
 
       try {
+        const currentSettings = getSettings()
         const { clipboard } = require('electron')
         const oldText = clipboard.readText()
         
@@ -102,9 +103,9 @@ export function registerHotkeys(
           // 5. Gửi text đến renderer để dịch
           overlayWindow.webContents.send(IPC_CHANNELS.SELECTED_TEXT, {
             text: selectedText,
-            sourceLang: settings.sourceLang,
-            targetLang: settings.targetLang,
-            provider: settings.defaultProvider
+            sourceLang: currentSettings.sourceLang,
+            targetLang: currentSettings.targetLang,
+            provider: currentSettings.defaultProvider
           })
         }
       } catch (error) {

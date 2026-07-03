@@ -25,11 +25,22 @@ function TrayPopup(): JSX.Element {
   const [history, setHistory] = useState<TranslationResult[]>([])
   const [historySearch, setHistorySearch] = useState('')
   const [copyFeedback, setCopyFeedback] = useState(false)
+  const [expandedHistoryIds, setExpandedHistoryIds] = useState<Set<string>>(new Set())
+
+  const toggleHistoryItem = (id: string) => {
+    const newSet = new Set(expandedHistoryIds)
+    if (newSet.has(id)) {
+      newSet.delete(id)
+    } else {
+      newSet.add(id)
+    }
+    setExpandedHistoryIds(newSet)
+  }
 
   // Lắng nghe navigation events từ tray menu
   useEffect(() => {
     loadSettings()
-    
+
     if (window.dichza) {
       const cleanup = window.dichza.onNavigate((page: string) => {
         if (page === 'settings' || page === 'history' || page === 'translate') {
@@ -64,7 +75,9 @@ function TrayPopup(): JSX.Element {
         provider: settings.defaultProvider,
         smartContext: settings.smartContext,
         apiKey: settings.openaiApiKey,
-        model: settings.openaiModel
+        model: settings.openaiModel,
+        geminiApiKey: settings.geminiApiKey,
+        geminiModel: settings.geminiModel
       })
 
       setTranslatedText(result.translatedText)
@@ -81,11 +94,11 @@ function TrayPopup(): JSX.Element {
         duration: result.duration || 0,
         source: 'selection'
       }
-      
+
       if (window.dichza) {
         await window.dichza.addHistory(historyItem)
       }
-      
+
       // Update local history
       setHistory(prev => [historyItem, ...prev])
 
@@ -141,13 +154,7 @@ function TrayPopup(): JSX.Element {
           <span className="tray-tabs__icon">✏️</span>
           <span>Dịch</span>
         </button>
-        <button
-          className={`tray-tabs__item ${activeTab === 'history' ? 'tray-tabs__item--active' : ''}`}
-          onClick={() => setActiveTab('history')}
-        >
-          <span className="tray-tabs__icon">📋</span>
-          <span>Lịch sử</span>
-        </button>
+
         <button
           className={`tray-tabs__item ${activeTab === 'settings' ? 'tray-tabs__item--active' : ''}`}
           onClick={() => setActiveTab('settings')}
@@ -299,24 +306,53 @@ function TrayPopup(): JSX.Element {
               </div>
             ) : (
               <div className="history-list">
-                {filteredHistory.map((item) => (
-                  <div
-                    key={item.id}
-                    className="history-item animate-fade-in-up"
-                    onClick={() => handleCopy(item.translatedText)}
-                    title="Click để copy bản dịch"
-                  >
-                    <div className="history-item__source">{item.sourceText}</div>
-                    <div className="history-item__arrow">→</div>
-                    <div className="history-item__translated">{item.translatedText}</div>
-                    <div className="history-item__meta">
-                      <span className="history-item__provider">{item.provider}</span>
-                      <span className="history-item__time">
-                        {new Date(item.timestamp).toLocaleTimeString('vi-VN')}
-                      </span>
+                {filteredHistory.map((item) => {
+                  const isExpanded = expandedHistoryIds.has(item.id)
+                  return (
+                    <div
+                      key={item.id}
+                      className={`history-item animate-fade-in-up ${isExpanded ? 'history-item--expanded' : ''}`}
+                      onClick={() => {
+                        if (!isExpanded) toggleHistoryItem(item.id)
+                      }}
+                      title={!isExpanded ? "Click để xem chi tiết" : ""}
+                    >
+                      <div className="history-item__source">{item.sourceText}</div>
+                      <div className="history-item__arrow">→</div>
+                      <div className="history-item__translated">{item.translatedText}</div>
+                      <div className="history-item__meta">
+                        <span className="history-item__provider">{item.provider}</span>
+                        <div className="history-item__actions">
+                          {isExpanded && (
+                            <>
+                              <button
+                                className="history-item__action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleCopy(item.translatedText)
+                                }}
+                              >
+                                📋 Copy dịch
+                              </button>
+                              <button
+                                className="history-item__action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleHistoryItem(item.id)
+                                }}
+                              >
+                                Thu gọn
+                              </button>
+                            </>
+                          )}
+                          <span className="history-item__time">
+                            {new Date(item.timestamp).toLocaleTimeString('vi-VN')}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 

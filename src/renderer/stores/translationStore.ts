@@ -72,20 +72,6 @@ export const useTranslationStore = create<TranslationState>((set, get) => ({
         isTranslating: false
       })
 
-      // Lưu vào history
-      if (window.dichza) {
-        await window.dichza.addHistory({
-          id: crypto.randomUUID(),
-          sourceText: inputText,
-          translatedText: result.translatedText,
-          sourceLang: state.sourceLang as any,
-          targetLang: state.targetLang as any,
-          provider: state.provider,
-          timestamp: Date.now(),
-          duration: result.duration,
-          source: 'selection'
-        })
-      }
     } catch (error: any) {
       set({
         error: error.message,
@@ -121,20 +107,6 @@ export const useTranslationStore = create<TranslationState>((set, get) => ({
 
       set({ isTranslating: false })
 
-      // Lưu vào history
-      if (window.dichza) {
-        await window.dichza.addHistory({
-          id: crypto.randomUUID(),
-          sourceText: inputText,
-          translatedText: fullText,
-          sourceLang: state.sourceLang as any,
-          targetLang: state.targetLang as any,
-          provider: state.provider,
-          timestamp: Date.now(),
-          duration: 0,
-          source: 'selection'
-        })
-      }
     } catch (error: any) {
       set({
         error: error.message,

@@ -228,7 +228,7 @@ export function registerIpcHandlers(
     try {
       const { translate } = require('google-translate-api-x')
       const safeFrom = (!from || from === 'auto' || from === 'undefined') ? 'auto' : from
-      
+
       // Giới hạn độ dài văn bản để tránh lỗi từ API (VD: Ctrl+A toàn bộ trang web)
       const MAX_LENGTH = 3000
       let textToTranslate = text

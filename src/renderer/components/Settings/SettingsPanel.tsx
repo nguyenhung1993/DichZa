@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { AppSettings } from '../../../shared/types'
 import { useSettingsStore } from '../../stores/settingsStore'
 import ContextSettings from './ContextSettings'
+import ShortcutRecorder from './ShortcutRecorder'
+import { ipcRenderer } from 'electron'
 import './Settings.css'
 
 export default function SettingsPanel() {
@@ -54,6 +56,7 @@ export default function SettingsPanel() {
           >
             <option value="google">Google Translate (Free)</option>
             <option value="openai">OpenAI (Pro)</option>
+            <option value="gemini">Gemini (Free Tier)</option>
           </select>
         </div>
         {settings.defaultProvider === 'openai' && (
@@ -67,6 +70,9 @@ export default function SettingsPanel() {
                 value={settings.openaiApiKey || ''}
                 onChange={e => updateSetting({ openaiApiKey: e.target.value })}
               />
+              <div style={{ marginTop: 4, fontSize: '0.8rem', opacity: 0.7 }}>
+                Lấy API key tại: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>platform.openai.com</a>
+              </div>
             </div>
             <div className="settings-item settings-item--col">
               <span className="settings-item__label">Model</span>
@@ -79,9 +85,38 @@ export default function SettingsPanel() {
             </div>
           </>
         )}
+        {settings.defaultProvider === 'gemini' && (
+          <>
+            <div className="settings-item settings-item--col">
+              <span className="settings-item__label">Gemini API Key</span>
+              <input 
+                type="password" 
+                className="settings-input"
+                placeholder="AIza..."
+                value={settings.geminiApiKey || ''}
+                onChange={e => updateSetting({ geminiApiKey: e.target.value })}
+              />
+              <div style={{ marginTop: 4, fontSize: '0.8rem', opacity: 0.7 }}>
+                Lấy API key miễn phí tại: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>aistudio.google.com</a>
+              </div>
+            </div>
+            <div className="settings-item settings-item--col">
+              <span className="settings-item__label">Model</span>
+              <select
+                className="settings-item__select"
+                value={settings.geminiModel || 'gemini-2.0-flash'}
+                onChange={e => updateSetting({ geminiModel: e.target.value })}
+              >
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Nhanh, Miễn phí)</option>
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Mới nhất)</option>
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Chính xác nhất)</option>
+              </select>
+            </div>
+          </>
+        )}
       </div>
 
-      {settings.defaultProvider === 'openai' && (
+      {(settings.defaultProvider === 'openai' || settings.defaultProvider === 'gemini') && (
         <div className="settings-group animate-fade-in">
           <h3 className="settings-group__title">🧠 Smart Context</h3>
           <ContextSettings settings={settings} onSave={updateSetting} />
@@ -89,7 +124,7 @@ export default function SettingsPanel() {
       )}
 
       <div className="settings-group">
-        <h3 className="settings-group__title">⚙️ Hệ thống</h3>
+        <h3 className="settings-group__title">⚙️ Hệ thống & Phím tắt</h3>
         <div className="settings-item">
           <span className="settings-item__label">Khởi động cùng Windows</span>
           <label className="settings-switch">
@@ -100,6 +135,20 @@ export default function SettingsPanel() {
             />
             <span className="settings-switch__slider"></span>
           </label>
+        </div>
+        <div className="settings-item">
+          <span className="settings-item__label">Phím tắt: Dịch văn bản bôi đen</span>
+          <ShortcutRecorder 
+            initialShortcut={settings.translateHotkey} 
+            onChange={(shortcut) => updateSetting({ translateHotkey: shortcut })} 
+          />
+        </div>
+        <div className="settings-item">
+          <span className="settings-item__label">Phím tắt: Dịch màn hình (OCR)</span>
+          <ShortcutRecorder 
+            initialShortcut={settings.ocrHotkey} 
+            onChange={(shortcut) => updateSetting({ ocrHotkey: shortcut })} 
+          />
         </div>
       </div>
 

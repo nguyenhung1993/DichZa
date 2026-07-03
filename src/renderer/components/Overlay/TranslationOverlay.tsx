@@ -52,7 +52,7 @@ function TranslationOverlay(): JSX.Element {
   }, [perMessageContext]) // Depend on perMessageContext so it uses the latest value if user typed something before selecting text again, although usually context is typed AFTER?
 
   // Thực hiện dịch
-  const doTranslate = async (text: string, sourceLang: string, targetLang: string, provider: 'google' | 'openai' | 'dichza') => {
+  const doTranslate = async (text: string, sourceLang: string, targetLang: string, provider: 'google' | 'openai' | 'gemini' | 'dichza') => {
     try {
       setIsTranslating(true)
       setTranslatedText('')
@@ -69,7 +69,9 @@ function TranslationOverlay(): JSX.Element {
           perMessage: perMessageContext // Use current typed context
         },
         apiKey: settings.openaiApiKey,
-        model: settings.openaiModel
+        model: settings.openaiModel,
+        geminiApiKey: settings.geminiApiKey,
+        geminiModel: settings.geminiModel
       }
 
       const stream = translateStream(options)
@@ -124,6 +126,7 @@ function TranslationOverlay(): JSX.Element {
     switch (p) {
       case 'google': return '🔵 Google'
       case 'openai': return '🟢 OpenAI'
+      case 'gemini': return '🔷 Gemini'
       case 'dichza': return '🟣 DichZa AI'
       default: return p
     }
@@ -193,7 +196,7 @@ function TranslationOverlay(): JSX.Element {
         </div>
 
         {/* Context Input (Only for OpenAI) */}
-        {provider === 'openai' && (
+        {(provider === 'openai' || provider === 'gemini') && (
           <div className="overlay-context-input">
             <input
               type="text"

@@ -3,26 +3,30 @@
 // Dùng google-translate-api-x (unofficial, free, unlimited)
 // ============================================================
 
+import { withRetry } from './retryHelper'
+
 /**
  * Dịch text bằng Google Translate (free)
+ * Tự động retry 3 lần khi bị rate limit (429)
  */
 export async function translateWithGoogle(
   text: string,
   from: string,
   to: string
 ): Promise<{ text: string; detectedLang?: string }> {
-  try {
-    return await window.dichza.translateGoogle(text, from, to)
-  } catch (error: any) {
-    console.error('[DichZa] Google Translate error:', error.message)
-
-    // Fallback: nếu google-translate-api-x fail
-    if (error.message?.includes('403') || error.message?.includes('429')) {
-      throw new Error('Google Translate đang bị rate limit. Vui lòng thử lại sau.')
+  return withRetry(
+    () => window.dichza.translateGoogle(text, from, to),
+    {
+      maxRetries: 3,
+      baseDelay: 1000,
+      onRetry: (attempt, error, delay) => {
+        console.warn(
+          `[DichZa] Google Translate retry ${attempt}/3 (chờ ${delay}ms):`,
+          error.message
+        )
+      }
     }
-
-    throw new Error(`Google Translate lỗi: ${error.message}`)
-  }
+  )
 }
 
 /**
