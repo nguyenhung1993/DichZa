@@ -173,7 +173,7 @@ export default function SettingsPanel() {
              onChange={e => updateSetting({ uiLanguage: e.target.value as any })}
           >
             <option value="vi">🇻🇳 Tiếng Việt</option>
-            <option value="en">🇺🇸 English</option>
+            {/* <option value="en">🇺🇸 English</option> */}
           </select>
         </div>
       </div>
