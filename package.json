@@ -1,7 +1,8 @@
 {
   "name": "dichza",
-  "version": "1.0.1",
-  "description": "DichZa - Instant Desktop Translation App",
+  "version": "1.0.3",
+  "private": true,
+  "scriptsdescription": "DichZa - Instant Desktop Translation App",
   "author": "nguyenhung1993",
   "main": "out/main/index.js",
   "scripts": {
