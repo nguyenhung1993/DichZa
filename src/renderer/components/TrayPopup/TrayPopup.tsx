@@ -130,10 +130,6 @@ function TrayPopup(): JSX.Element {
           <span className="tray-header__icon">🌐</span>
           <h1 className="tray-header__title">DichZa</h1>
         </div>
-        <div className="tray-header__badge">
-          <span className="tray-header__status-dot" />
-          <span className="tray-header__status-text">Sẵn sàng</span>
-        </div>
       </header>
 
       {/* ─── Tab Navigation ─── */}

@@ -146,19 +146,23 @@ function TranslationOverlay(): JSX.Element {
     const card = containerRef.current.querySelector('.overlay-card')
     if (!card) return
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const rect = entry.target.getBoundingClientRect()
-        // Cộng thêm 20px buffer để đảm bảo không bao giờ bị cắt cụt UI
-        const width = Math.ceil(rect.width) + 20
-        const height = Math.min(Math.ceil(rect.height) + 20, 800) // Cap window at 800px
-        window.dichza.resizeOverlay(width, height)
-      }
-    })
+    const header = card.querySelector('.overlay-header')
+    const result = card.querySelector('.overlay-result')
+    const footer = card.querySelector('.overlay-footer')
+    const contextInput = card.querySelector('.overlay-context-input')
+    
+    let desiredHeight = 0 // No margins!
+    if (header) desiredHeight += header.getBoundingClientRect().height
+    if (result) desiredHeight += result.scrollHeight
+    if (footer) desiredHeight += footer.getBoundingClientRect().height
+    if (contextInput) desiredHeight += contextInput.getBoundingClientRect().height
 
-    observer.observe(card)
-    return () => observer.disconnect()
-  }, [])
+    const maxWindowHeight = Math.min(800, window.screen.availHeight - 40)
+    const height = Math.min(desiredHeight, maxWindowHeight)
+    const width = Math.ceil(card.getBoundingClientRect().width)
+
+    window.dichza.resizeOverlay(width, height)
+  }, [translatedText, isTranslating, provider])
 
   if (!sourceText && !translatedText) {
     return <div className="overlay-container" />
